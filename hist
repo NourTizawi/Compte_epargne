@@ -1,0 +1,337 @@
+from tkinter import *
+from datetime import date
+import calendar
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter.filedialog import asksaveasfile
+from tkcalendar import *
+from datetime import datetime
+import sqlite3
+
+
+
+def help():
+    h="ce programme permet de réaliser des calculs financières simples,il s'agit d'un mini projet pour le modul *Introduction aux Systèmes Financiers & Bancaires* au cours de l' année universitaire 2022-2023"
+    hel=Tk()
+    hel.title("informations")
+    label=Label(hel,text=h)
+    label.pack()
+    hel.pack()
+
+
+
+
+def browseFiles(label_file_explorer=None):
+    filename = filedialog.askopenfilename(initialdir="/",
+                                          title="Select a File",
+                                          filetypes=(("Text files",
+                                                      "*.txt*"),
+                                                     ("all files",
+                                                      "*.*")))
+
+
+    label_file_explorer.configure(text="File Opened: " + filename)
+
+
+def save():
+    files = [('All Files', '*.*'),
+             ('Python Files', '*.py'),
+             ('Text Document', '*.txt')]
+    file = asksaveasfile(filetypes = files, defaultextension = files)
+
+
+
+ldate = []
+ldatesval = []
+operation = []
+inttrimes = [0]
+solde = []
+tre = []
+inter= [0]
+i = 0
+nbj = 0
+
+def mainfunction():
+    firstwindow=Tk()
+    firstwindow.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+    firstwindow.title("compte d epargne")
+    firstwindow.config(background="#FFFBEB")
+    firstwindow.geometry("1050x600")
+    style=ttk.Style()
+    style.theme_use("default")
+    style.configure("treeview",background="#495579",  foreground="black",rowheight=25,fieldbackground="#495579")
+    style.map('treeview',background=[('selected','blue')])
+    my_tree=ttk.Treeview(firstwindow)
+    my_tree['columns']=("date","date valeur","operation","int trim","solde","nb jours","tre","int brut")
+    my_tree.column("#0",width=120,minwidth=25)
+    my_tree.column("date",width=120)
+    my_tree.column("date valeur",width=120)
+    my_tree.column("operation",width=120)
+    my_tree.column("int trim",width=120)
+    my_tree.column("solde",width=120)
+    my_tree.column("nb jours",width=120)
+    my_tree.column("tre",width=120)
+    my_tree.column("int brut",width=120)
+    my_tree.heading("#0",text="label")
+    my_tree.heading("date",text="date")
+    my_tree.heading("date valeur",text="date valeur")
+    my_tree.heading("operation",text="operation")
+    my_tree.heading("int trim",text="int trim")
+    my_tree.heading("solde",text="solde")
+    my_tree.heading("nb jours",text="nb jours")
+    my_tree.heading("tre",text="tre")
+    my_tree.heading("int brut",text="int brut")
+
+    add_frame=Frame(firstwindow)
+    add_frame.pack(pady=20)
+    n1=Label(add_frame,text="date a-m-j")
+    n1.grid(row=0,column=0)
+    n2=Label(add_frame,text="operation")
+    n2.grid(row=0,column=1)
+    n3=Label(add_frame,text="tre")
+    n3.grid(row=0,column=2)
+
+    a1=Entry(add_frame)
+    a1.grid(row=1,column=0)
+    a2 = Entry(add_frame)
+    a2.grid(row=1, column=1)
+    a3 = Entry(add_frame)
+    a3.grid(row=1, column=2)
+    my_tree.pack(pady=20)
+
+
+
+
+    count=0
+    def adding() :
+          global i,nbj,inter,tre,solde,inttrimes,operation,ldatesval,ldate
+
+          a = a1.get()
+          ldate.append(datetime.strptime(a,"%d-%m-%Y").date())
+
+          b = a + datetime.timedelta(days=7)
+          ldatesval.append(b.date())
+
+          my_tree.insert(parent='',index='end',text="",values=(ldate[i],0,a2.get(),0,0,nbj,a3.get(),0))
+
+
+
+
+          a1.delete(0,END)
+          a2.delete(0,END)
+          a3.delete(0,END)
+          i+=1
+
+
+    ajout=Button(add_frame,text="ajouter",command=adding)
+    ajout.grid(row=0,column=3)
+
+
+
+
+
+
+
+
+    firstwindow.pack()
+
+
+
+
+
+
+def tauxeffectifglobal():
+
+    wind=Tk()
+    wind.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+    wind.title("taux effectif global")
+    wind.config(background="#FFFBEB")
+    line1=Label(wind,text="quel est le taux d interet",font=40)
+    line1.grid(row=0,column=0)
+    e1=Entry(wind)
+    e1.grid(row=0,column=1)
+
+    line2 = Label(wind,text="quel est le nombre de jours", font=40)
+    line2.grid(row=2, column=0)
+    e2 = Entry(wind)
+    e2.grid(row=2, column=1)
+
+    line3 = Label(wind, text="le taux effectif global=", font=40)
+    line3.grid(row=4, column=0)
+    e3= Entry(wind)
+    e3.grid(row=4, column=1)
+
+    def gety():
+        i=float(e1.get())
+        n=float(e2.get())
+        teg = i/(1-i*n/360)
+        e3.insert(0,teg)
+
+
+
+    p=Button(wind,text="ok",font=40,command=gety)
+    p.grid(row=3,column=1)
+    wind.pack()
+
+
+
+
+
+
+
+
+
+
+def tauxmoyen():
+    win = Tk()
+    win.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+    win.title("taux moyen")
+    win.config(background="#FFFBEB")
+    ligne0 = Label(win, text="de combien de capital s'agit il", font=40)
+    ligne0.grid(row=0, column=0)
+    en0 = Entry(win)
+    en0.grid(row=0, column=1)
+
+    def getx():
+        j=int(en0.get())
+        if j>0 :
+            child=Tk()
+            child.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+            child.title("saisie des données")
+            child.config(background="#FFFBEB")
+            capitallist=[]
+            jourslist=[]
+            tauxlist=[]
+            for i in range(1,j+1):
+                text1="la valeur du capital"+str(i)
+                lab1=Label(child,text=text1,font=40)
+                lab1.grid(row=i,column=0)
+                e= Entry(child)
+                e.grid(row=i, column=1)
+                capitallist.append(e)
+                labend = Label(child, text="************")
+                labend.grid(row=i + 3, column=0)
+
+            for l in range(1,j+1):
+                text2="le nombre de jours "+str(l)
+                lab2 = Label(child, text=text2, font=40)
+                lab2.grid(row=j+l, column=0)
+                e1= Entry(child)
+                e1.grid(row=j+l,column=1)
+                jourslist.append(e1)
+                labendd = Label(child, text="************")
+                labendd.grid(row=j+l+1, column=0)
+
+            for m in range(1,j+1):
+                text3="le taux "+str(m)
+                lab3 = Label(child, text="le taux d interet=", font=40)
+                lab3.grid(row=2*j+m, column=0)
+                e2 = Entry(child)
+                e2.grid(row=2*j+m, column=1)
+                tauxlist.append(e2)
+                labenddd=Label(child,text="************")
+                labenddd.grid(row=2*j+m+1,column=0)
+
+            def calcultaux():
+                num=0
+                denom=0
+
+                for y in range(j):
+                    num+=int(capitallist[i].get())*int(jourslist[i].get())*int(tauxlist[i].get())
+                    denom+=int(capitallist[i].get())*int(jourslist[i].get())
+
+                resultat=num/denom
+                resultatwindow=Tk()
+                resultatwindow.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+                resultatwindow.title("resultat")
+                resultatwindow.config(background="#FFFBEB")
+                finalresult="le taux moyen de placement des capitaux est"+str(resultat)
+                label3=Label(resultatwindow,text=finalresult,font=40)
+                label3.grid(resultatwindow)
+
+                resultatwindow.pack()
+
+
+
+
+
+
+
+            button2 = Button(child, text="valider", font=40,command=calcultaux)
+            button2.grid(row=j*5,column=1)
+            child.pack()
+
+
+
+
+    m= Button(win, text="ok", font=40,command=getx)
+    m.grid(row=2, column=1)
+    win.pack()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+window=Tk()
+window.title("Intérêts simples,compte d'epargne")
+window.geometry("1080x720")
+window.minsize(480, 360)
+window.iconbitmap("Business-Finance-logo-design-premium-vector-PNG (1).ico")
+window.config(background='#E8C4C4')
+menubar=Menu(window)
+file_menu=Menu(menubar,tearoff=0)
+file_menu.add_command(label='nouveau')
+file_menu.add_command(label='ouvrir',command=browseFiles)
+file_menu.add_command(label='enregistrer',command=save)
+file_menu.add_command(label='enregistrer sous',command=save)
+file_menu.add_separator()
+file_menu.add_command(label='quitter', command=window.quit)
+menubar.add_cascade(label='fichier', menu=file_menu)
+aide_menu=Menu(menubar,tearoff=0)
+aide_menu.add_command(label='informations',command=help)
+menubar.add_cascade(label='aide', menu=aide_menu)
+window.config(menu=menubar)
+
+
+
+
+window.grid_columnconfigure(0, weight = 1)
+window.grid_columnconfigure(1, weight = 1)
+window.grid_rowconfigure(0, weight = 1)
+
+mainframe = Frame(window, bg = "#495579")
+mainframe.grid(row = 0, column = 0, sticky = "nesw")
+cal = Frame(window, bg = "#263159")
+cal.grid(row = 0, column = 1, sticky = "nesw")
+
+
+
+currentDay = datetime.now().day
+currentMonth = datetime.now().month
+currentYear = datetime.now().year
+info=Calendar(cal,selectmode="day",year=currentDay,month=currentMonth,day=currentDay)
+info.pack(fill="both",expand=True)
+
+
+b1=Button(mainframe,text='nouveau',bg='#FFFBEB',activeforeground='#5584AC',command=mainfunction)
+b1.place(x=200,y=200)
+
+
+b2=Button(mainframe,text='calculer un taux moyen de placement de capitaux',bg="#FFFBEB",command=tauxmoyen)
+b2.place(x=120,y=300)
+
+
+b3=Button(mainframe,text='calculer un taux effectif global',bg="#FFFBEB",command=tauxeffectifglobal)
+b3.place(x=150,y=400)
+
+
+window.mainloop()
